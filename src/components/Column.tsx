@@ -7,7 +7,7 @@ type Props = {
 const Board: React.FC<Props> = ({ children, color, title }) => {
   	return (
 		<div
-			className="block w-100 rounded-lg overflow-hidden"
+			className="block w-80 rounded-lg overflow-hidden bg-slate-100"
 			style={{
 				border: `2px solid ${color}`,
 			}}
@@ -22,7 +22,7 @@ const Board: React.FC<Props> = ({ children, color, title }) => {
 				{title}
 			</div>
 
-			<div className="px-2 py-6">
+			<div className="px-2 pt-2 min-h-100">
 				{ /* content */ }
 				{ children }
 			</div>

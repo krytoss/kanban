@@ -5,7 +5,7 @@ import Task from "@/components/Task";
 export default function Home() {
 	return (
 		<Board>
-			<Column color="#f0ad4e" title="To-Do">
+			<Column color="#F0B8B4" title="To-Do">
 				<Task text="Task 1" />
 			</Column>
 		</Board>
