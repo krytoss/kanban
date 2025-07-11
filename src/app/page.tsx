@@ -9,6 +9,7 @@ import { Task as TaskType } from "@/app/types";
 
 export default function Home() {
 
+	const [draggingTask, setDraggingTask] = useState<TaskType | null>(null);
 	const columns = [
 		{ id: 1, color: "#F0B8B4", title: "To-Do" },
 		{ id: 2, color: "#B4E0F0", title: "In Progress" },
@@ -42,9 +43,17 @@ export default function Home() {
 
 	return (
 		<Board>
-        	<DndContext onDragEnd={handleDragEnd}>
+        	<DndContext
+				onDragEnd={handleDragEnd}
+				onDragStart={(event) => {
+					setDraggingTask(tasks.find((task) => task.id === event.active.id as number) || null);
+				}}
+				onDragCancel={() => {
+					setDraggingTask(null);
+				}}
+			>
 				{columns.map(column => (
-					<Column key={column.id} column={column}>
+					<Column key={column.id} column={column} draggingTask={draggingTask}>
 						{tasks.filter(task => task.column_id === column.id).map(task => (
 							<Task key={task.id} task={task} />
 						))}

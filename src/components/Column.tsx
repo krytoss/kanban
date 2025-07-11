@@ -1,16 +1,19 @@
 import { useDroppable } from "@dnd-kit/core";
 import { FaPlus } from "react-icons/fa";
-import { Column as ColumnType } from "@/app/types";
+import { Column as ColumnType, Task as TaskType } from "@/app/types";
 
 type Props = {
 	column: ColumnType;
 	children?: React.ReactNode;
+	draggingTask: TaskType | null;
 }
 
-const Board: React.FC<Props> = ({ children, column }) => {
-	const { setNodeRef } = useDroppable({
+const Board: React.FC<Props> = ({ children, column, draggingTask }) => {
+	const { setNodeRef, isOver } = useDroppable({
 		id: column.id,
 	});
+
+	const isOverAnother = isOver && draggingTask && draggingTask.column_id !== column.id;
 
   	return (
 		<div
@@ -33,6 +36,9 @@ const Board: React.FC<Props> = ({ children, column }) => {
 			<div className="px-2 pb-2">
 				{ /* content */ }
 				{ children }
+				{isOverAnother && (
+					<div className="bg-white border-2 border-dashed border-gray-400 rounded h-12 my-2"></div>
+				)}
 			</div>
 
 			<div className="w-8 h-8 mt-4 bg-slate-800 rounded-full m-auto flex items-center justify-center hover:bg-slate-700 cursor-pointer">
