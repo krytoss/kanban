@@ -1,27 +1,33 @@
+import { useDroppable } from "@dnd-kit/core";
 import { FaPlus } from "react-icons/fa";
+import { Column as ColumnType } from "@/app/types";
 
 type Props = {
+	column: ColumnType;
 	children?: React.ReactNode;
-	color: string;
-	title: string;
 }
 
-const Board: React.FC<Props> = ({ children, color, title }) => {
+const Board: React.FC<Props> = ({ children, column }) => {
+	const { setNodeRef } = useDroppable({
+		id: column.id,
+	});
+
   	return (
 		<div
-			className="block w-80 rounded-md overflow-hidden bg-slate-100 min-h-100"
+			ref={setNodeRef}
+			className="block w-80 rounded-md overflow-hidden bg-slate-100 min-h-100 overflow-visible"
 			style={{
-				border: `2px solid ${color}`,
+				border: `2px solid ${column.color}`,
 			}}
 		>
 
 			<div
 				className="w-full p-4 text-center"
 				style={{
-					backgroundColor: color,
+					backgroundColor: column.color,
 				}}
 			> { /* header */ }
-				{title}
+				{column.title}
 			</div>
 
 			<div className="px-2 pb-2">

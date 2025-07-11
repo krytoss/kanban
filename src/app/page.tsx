@@ -1,6 +1,11 @@
+'use client'
+
 import Board from "@/components/Board";
 import Column from "@/components/Column";
 import Task from "@/components/Task";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { useState } from "react";
+import { Task as TaskType } from "@/app/types";
 
 export default function Home() {
 
@@ -10,21 +15,42 @@ export default function Home() {
 		{ id: 3, color: "#B4F0B8", title: "Done" },
 	]
 
-	const tasks = [
+	const [ tasks, setTasks ] = useState<TaskType[]>([
 		{ id: 1, text: "Task 1", column_id: 1 },
 		{ id: 2, text: "Task 2", column_id: 2 },
 		{ id: 3, text: "Task 3", column_id: 2 },
-	];
+	]);
+
+	function handleDragEnd(event: DragEndEvent) {
+		const { active, over } = event;
+		if (!over) return;
+	
+		const taskId = active.id as number;
+		const newColumn = over.id as TaskType['column_id'];
+	
+		setTasks(() =>
+		  tasks.map((task) =>
+			task.id === taskId
+			  ? {
+				  ...task,
+				  column_id: newColumn,
+				}
+			  : task,
+		  ),
+		);
+	  }
 
 	return (
 		<Board>
-			{columns.map(column => (
-				<Column key={column.id} color={column.color} title={column.title}>
-					{tasks.filter(task => task.column_id === column.id).map(task => (
-						<Task key={task.id} text={task.text} />
-					))}
-				</Column>
-			))}
+        	<DndContext onDragEnd={handleDragEnd}>
+				{columns.map(column => (
+					<Column key={column.id} column={column}>
+						{tasks.filter(task => task.column_id === column.id).map(task => (
+							<Task key={task.id} task={task} />
+						))}
+					</Column>
+				))}
+			</DndContext>
 		</Board>
 	);
 }
