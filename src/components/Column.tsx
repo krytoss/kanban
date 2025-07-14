@@ -1,18 +1,19 @@
-import { useDroppable } from "@dnd-kit/core";
 import { FaPlus } from "react-icons/fa";
 import { Column as ColumnType, Task as TaskType } from "@/app/types";
 import Task from "./Task";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useMemo } from "react";
+import { CSS } from "@dnd-kit/utilities";
 
 type Props = {
 	column: ColumnType;
 	tasks?: TaskType[];
 	draggingTask: TaskType | null;
+	isDragging?: boolean;
 }
 
-const Board: React.FC<Props> = ({ tasks, column, draggingTask }) => {
-	const { setNodeRef, isOver } = useDroppable({
+const Board: React.FC<Props> = ({ tasks, column, draggingTask, isDragging }) => {
+	const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
 		id: `column-${column.id}`,
 		data: {
 			type: 'column',
@@ -22,20 +23,41 @@ const Board: React.FC<Props> = ({ tasks, column, draggingTask }) => {
 
 	const tasksIds = useMemo(() => tasks?.map(task => `task-${task.id}`) || [], [tasks]);
 
-	const isOverAnother = isOver && draggingTask && draggingTask.column_id !== column.id;
+	if (isDragging) {
+		return (
+			<div
+				style={{
+					transform: CSS.Transform.toString(transform),
+					transition,
+				}}
+				ref={setNodeRef}
+				className="block w-80 rounded-md bg-gray-200 min-h-100 border-2 border-gray-400"
+			>
+				<div
+					{...attributes}
+					{...listeners}
+					className="w-full py-8 text-center bg-gray-400"
+				/>
+			</div>
+		)
+	}
 
   	return (
 		<SortableContext items={tasksIds} strategy={verticalListSortingStrategy}>
 			<div
-				ref={setNodeRef}
-				className="block w-80 rounded-md overflow-hidden bg-slate-100 min-h-100 overflow-visible"
 				style={{
+					transform: CSS.Transform.toString(transform),
+					transition,
 					border: `2px solid ${column.color}`,
 				}}
+				ref={setNodeRef}
+				className="block w-80 rounded-md bg-slate-100 min-h-100 overflow-visible"
 			>
 
 				<div
-					className="w-full p-4 text-center"
+					{...attributes}
+					{...listeners}
+					className="w-full p-4 text-center cursor-grab"
 					style={{
 						backgroundColor: column.color,
 					}}

@@ -3,15 +3,16 @@
 import Board from "@/components/Board";
 import Column from "@/components/Column";
 import Task from "@/components/Task";
-import { closestCenter, closestCorners, DndContext, DragCancelEvent, DragEndEvent, DragOverEvent, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { useEffect, useMemo, useState } from "react";
+import { closestCenter, closestCorners, DndContext, DragCancelEvent, DragEndEvent, DragOverEvent, DragOverlay, KeyboardSensor, PointerSensor, pointerWithin, useSensor, useSensors } from "@dnd-kit/core";
+import { useMemo, useState } from "react";
 import { Task as TaskType, Column as ColumnType } from "@/app/types";
 import { createPortal } from "react-dom";
-import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { arrayMove, horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 
 export default function Home() {
 
 	const [draggingTask, setDraggingTask] = useState<TaskType | null>(null);
+	const [draggingColumn, setDraggingColumn] = useState<ColumnType | null>(null);
 	const [ columns, setColumns ] = useState<ColumnType[]>([
 		{
 			id: 1,
@@ -69,27 +70,25 @@ export default function Home() {
 		}
 	]);
 
-	const tasksByColumn = useMemo(() => {
-		const map = new Map<number, TaskType[]>();
-		tasks.forEach(task => {
-			if (!map.has(task.column_id)) {
-				map.set(task.column_id, []);
-			}
-			map.get(task.column_id)!.push(task);
-		});
-		return map;
-	}, [tasks]);
-
 	const handleDragStart = (event: any) => {
-		const taskId = event.active.data.current?.task.id;
-		console.log("Dragging task ID:", event.active);
-		const task = tasks.find(task => task.id === taskId);
-		if (!task) return;
-		setDraggingTask(task);
+		const isActiveTask = event.active.data.current?.type === 'task';
+
+		if (isActiveTask) {
+			const taskId = event.active.data.current?.task.id;
+			const task = tasks.find(task => task.id === taskId);
+			if (!task) return;
+			setDraggingTask(task);
+		} else {
+			const columnId = event.active.data.current?.column.id;
+			const column = columns.find(column => column.id === columnId);
+			if (!column) return;
+			setDraggingColumn(column);
+		}
 	}
 
 	const handleDragEnd = (event: DragEndEvent) => {
 		setDraggingTask(null);
+		setDraggingColumn(null);
 		/* const { active, over } = event;
 		if (!over) return;
 	
@@ -150,6 +149,26 @@ export default function Home() {
 						.filter(t => t.id !== task.id)
 						.concat({ ...task, column_id: columnId }); // This ensures the task is moved to the bottom of the new column
 			});
+		} else if (!isActiveTask) {
+			// Handle case where a column is being dragged over another column
+			let targetColumnId: number | null = null;
+
+			if (isOverTask) {
+				targetColumnId = over.data.current?.task?.column_id;
+			} else if (over.data.current?.type === 'column') {
+				targetColumnId = over.data.current?.column?.id;
+			}
+
+			if (!targetColumnId) return;
+			if (active.data.current?.column.id === targetColumnId) {
+				return; // No need to update if the column is already in the same place
+			}
+
+			setColumns((columns) => {
+				const activeIndex = columns.findIndex(column => `column-${column.id}` === activeId);
+				const overIndex = columns.findIndex(column => `column-${column.id}` === `column-${targetColumnId}`);
+				return arrayMove(columns, activeIndex, overIndex);
+			});
 		}
 	}
 
@@ -170,18 +189,28 @@ export default function Home() {
 				sensors={sensors}
 				onDragOver={handleDragOver}
 			>
-				{columns.map(column => (
-					<Column
-						key={column.id}
-						column={column}
-						draggingTask={draggingTask}
-						tasks={tasks.filter(task => task.column_id === column.id)}
-					/>
-				))}
+				<SortableContext items={columns.map(column => `column-${column.id}`)} strategy={horizontalListSortingStrategy}>
+					{columns.map(column => (
+						<Column
+							key={column.id}
+							column={column}
+							draggingTask={draggingTask}
+							tasks={tasks.filter(task => task.column_id === column.id)}
+							isDragging={draggingColumn?.id === column.id}
+						/>
+					))}
+				</SortableContext>
 				{
 					createPortal(
 						<DragOverlay>
 							{ draggingTask && <Task task={draggingTask} /> }
+							{ draggingColumn && (
+								<Column
+									column={draggingColumn}
+									tasks={tasks.filter(task => task.column_id === draggingColumn.id)}
+									draggingTask={draggingTask}
+								/>
+							) }
 						</DragOverlay>,
 						document.body
 					)
