@@ -53,11 +53,12 @@ export default function Home() {
 				}}
 			>
 				{columns.map(column => (
-					<Column key={column.id} column={column} draggingTask={draggingTask}>
-						{tasks.filter(task => task.column_id === column.id).map(task => (
-							<Task key={task.id} task={task} />
-						))}
-					</Column>
+					<Column
+						key={column.id}
+						column={column}
+						draggingTask={draggingTask}
+						tasks={tasks.filter(task => task.column_id === column.id)}
+					/>
 				))}
 			</DndContext>
 		</Board>
