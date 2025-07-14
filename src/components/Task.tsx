@@ -3,12 +3,16 @@ import { Task as TaskType } from "@/app/types";
 
 type Props = {
 	task: TaskType;
+	isDragging?: boolean;
 }
 
-const Task: React.FC<Props> = ({ task }) => {
+const Task: React.FC<Props> = ({ task, isDragging }) => {
 
 	const { attributes, listeners, setNodeRef, transform } = useDraggable({
-		id: task.id,
+		id: `task-${task.id}`,
+		data: {
+			task
+		}
 	});
 
 	const style = transform
@@ -18,15 +22,19 @@ const Task: React.FC<Props> = ({ task }) => {
 		: undefined;
 
 	return (
-		<div
-			ref={setNodeRef}
-			{...listeners}
-			{...attributes}
-			className="bg-white px-4 py-2 rounded shadow-md mt-2 text-slate-600 cursor-grab"
-			style={ style }
-		>
-			<p>{task.text}</p>
-		</div>
+		isDragging ?
+			<div
+				className="bg-gray-200 px-4 py-5 rounded shadow-md mt-2 text-slate-600"
+			/> :
+			<div
+				ref={setNodeRef}
+				{...listeners}
+				{...attributes}
+				className="bg-white px-4 py-2 rounded shadow-md mt-2 text-slate-600 cursor-grab"
+				style={ style }
+			>
+				<p>{task.text}</p>
+			</div>
 	);
 };
 

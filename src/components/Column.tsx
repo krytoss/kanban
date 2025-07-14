@@ -11,7 +11,10 @@ type Props = {
 
 const Board: React.FC<Props> = ({ tasks, column, draggingTask }) => {
 	const { setNodeRef, isOver } = useDroppable({
-		id: column.id,
+		id: `column-${column.id}`,
+		data: {
+			column
+		}
 	});
 
 	const isOverAnother = isOver && draggingTask && draggingTask.column_id !== column.id;
@@ -41,6 +44,7 @@ const Board: React.FC<Props> = ({ tasks, column, draggingTask }) => {
 						<Task
 							key={task.id}
 							task={task}
+							isDragging={draggingTask?.id === task.id}
 						/>
 					))
 				}

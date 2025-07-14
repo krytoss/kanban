@@ -3,9 +3,10 @@
 import Board from "@/components/Board";
 import Column from "@/components/Column";
 import Task from "@/components/Task";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { DndContext, DragCancelEvent, DragEndEvent, DragOverlay } from "@dnd-kit/core";
 import { useState } from "react";
 import { Task as TaskType } from "@/app/types";
+import { createPortal } from "react-dom";
 
 export default function Home() {
 
@@ -22,8 +23,16 @@ export default function Home() {
 		{ id: 3, text: "Task 3", column_id: 2 },
 	]);
 
-	function handleDragEnd(event: DragEndEvent) {
-		const { active, over } = event;
+	const handleDragStart = (event: any) => {
+		const taskId = event.active.data.current?.task.id;
+		console.log("Dragging task ID:", event.active);
+		const task = tasks.find(task => task.id === taskId) || null;
+		setDraggingTask(task);
+	}
+
+	const handleDragEnd = (event: DragEndEvent) => {
+		setDraggingTask(null);
+		/* const { active, over } = event;
 		if (!over) return;
 	
 		const taskId = active.id as number;
@@ -38,19 +47,19 @@ export default function Home() {
 				}
 			  : task,
 		  ),
-		);
+		); */
 	  }
+
+	const handleDragCancel = (event: DragCancelEvent) => {
+		setDraggingTask(null);
+	}
 
 	return (
 		<Board>
         	<DndContext
 				onDragEnd={handleDragEnd}
-				onDragStart={(event) => {
-					setDraggingTask(tasks.find((task) => task.id === event.active.id as number) || null);
-				}}
-				onDragCancel={() => {
-					setDraggingTask(null);
-				}}
+				onDragStart={handleDragStart}
+				onDragCancel={handleDragCancel}
 			>
 				{columns.map(column => (
 					<Column
@@ -60,6 +69,14 @@ export default function Home() {
 						tasks={tasks.filter(task => task.column_id === column.id)}
 					/>
 				))}
+				{
+					createPortal(
+						<DragOverlay>
+							{ draggingTask && <Task task={draggingTask} /> }
+						</DragOverlay>,
+						document.body
+					)
+				}
 			</DndContext>
 		</Board>
 	);
