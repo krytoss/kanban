@@ -8,4 +8,5 @@ export type Task = {
 	id: number;
 	text: string;
 	column_id: number;
+	order: number;
 };

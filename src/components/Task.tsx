@@ -1,5 +1,6 @@
-import { useDraggable } from "@dnd-kit/core";
 import { Task as TaskType } from "@/app/types";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Props = {
 	task: TaskType;
@@ -8,23 +9,27 @@ type Props = {
 
 const Task: React.FC<Props> = ({ task, isDragging }) => {
 
-	const { attributes, listeners, setNodeRef, transform } = useDraggable({
+	const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
 		id: `task-${task.id}`,
 		data: {
+			type: 'task',
 			task
 		}
 	});
 
-	const style = transform
-		? {
-			transform: `translate(${transform.x}px, ${transform.y}px)`,
-		}
-		: undefined;
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition
+	}
 
 	return (
 		isDragging ?
 			<div
-				className="bg-gray-200 px-4 py-5 rounded shadow-md mt-2 text-slate-600"
+				ref={setNodeRef}
+				{...listeners}
+				{...attributes}
+				style={ style }
+				className="bg-gray-200 px-4 py-5 rounded shadow-md mt-2 text-slate-600 border-2 border-gray-400 opacity-70"
 			/> :
 			<div
 				ref={setNodeRef}
