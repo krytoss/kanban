@@ -209,6 +209,7 @@ export default function Home() {
 									column={draggingColumn}
 									tasks={tasks.filter(task => task.column_id === draggingColumn.id)}
 									draggingTask={draggingTask}
+									className="opacity-90"
 								/>
 							) }
 						</DragOverlay>,

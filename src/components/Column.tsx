@@ -10,9 +10,10 @@ type Props = {
 	tasks?: TaskType[];
 	draggingTask: TaskType | null;
 	isDragging?: boolean;
+	className?: string;
 }
 
-const Board: React.FC<Props> = ({ tasks, column, draggingTask, isDragging }) => {
+const Board: React.FC<Props> = ({ tasks, column, draggingTask, isDragging, className }) => {
 	const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
 		id: `column-${column.id}`,
 		data: {
@@ -31,7 +32,7 @@ const Board: React.FC<Props> = ({ tasks, column, draggingTask, isDragging }) => 
 					transition,
 				}}
 				ref={setNodeRef}
-				className="block w-80 rounded-md bg-gray-200 min-h-100 border-2 border-gray-400"
+				className="block w-80 rounded-md bg-gray-200 min-h-100 border-2 border-gray-400 scale-90 animate-pulse"
 			>
 				<div
 					{...attributes}
@@ -51,7 +52,7 @@ const Board: React.FC<Props> = ({ tasks, column, draggingTask, isDragging }) => 
 					border: `2px solid ${column.color}`,
 				}}
 				ref={setNodeRef}
-				className="block w-80 rounded-md bg-slate-100 min-h-100 overflow-visible"
+				className={`block w-80 rounded-md bg-slate-100 min-h-100 overflow-visible ${className || ''}`}
 			>
 
 				<div
