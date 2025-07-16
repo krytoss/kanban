@@ -4,15 +4,16 @@ import Board from "@/components/Board";
 import Column from "@/components/Column";
 import Task from "@/components/Task";
 import { closestCenter, closestCorners, DndContext, DragCancelEvent, DragEndEvent, DragOverEvent, DragOverlay, KeyboardSensor, PointerSensor, pointerWithin, useSensor, useSensors } from "@dnd-kit/core";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Task as TaskType, Column as ColumnType } from "@/app/types";
 import { createPortal } from "react-dom";
 import { arrayMove, horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 
 export default function Home() {
 
-	const [draggingTask, setDraggingTask] = useState<TaskType | null>(null);
-	const [draggingColumn, setDraggingColumn] = useState<ColumnType | null>(null);
+	const [ isClient, setIsClient ] = useState(false);
+	const [ draggingTask, setDraggingTask ] = useState<TaskType | null>(null);
+	const [ draggingColumn, setDraggingColumn ] = useState<ColumnType | null>(null);
 	const [ columns, setColumns ] = useState<ColumnType[]>([
 		{
 			id: 1,
@@ -179,6 +180,10 @@ export default function Home() {
 		})
 	);
 
+	useEffect(() => {
+		setIsClient(true);
+	}, [])
+
 	return (
 		<Board>
         	<DndContext
@@ -201,20 +206,21 @@ export default function Home() {
 					))}
 				</SortableContext>
 				{
-					createPortal(
-						<DragOverlay>
-							{ draggingTask && <Task task={draggingTask} /> }
-							{ draggingColumn && (
-								<Column
-									column={draggingColumn}
-									tasks={tasks.filter(task => task.column_id === draggingColumn.id)}
-									draggingTask={draggingTask}
-									className="opacity-90"
-								/>
-							) }
-						</DragOverlay>,
-						document.body
-					)
+					isClient &&
+						createPortal(
+							<DragOverlay>
+								{ draggingTask && <Task task={draggingTask} /> }
+								{ draggingColumn && (
+									<Column
+										column={draggingColumn}
+										tasks={tasks.filter(task => task.column_id === draggingColumn.id)}
+										draggingTask={draggingTask}
+										className="opacity-80"
+									/>
+								) }
+							</DragOverlay>,
+							document.body
+						)
 				}
 			</DndContext>
 		</Board>

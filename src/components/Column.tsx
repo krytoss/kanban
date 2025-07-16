@@ -32,7 +32,7 @@ const Board: React.FC<Props> = ({ tasks, column, draggingTask, isDragging, class
 					transition,
 				}}
 				ref={setNodeRef}
-				className="block w-80 rounded-md bg-gray-200 min-h-100 border-2 border-gray-400 scale-90 animate-pulse"
+				className="block w-80 rounded-md bg-gray-200 min-h-100 border-2 border-gray-400 scale-90 opacity-20"
 			>
 				<div
 					{...attributes}
