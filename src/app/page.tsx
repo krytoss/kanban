@@ -14,62 +14,22 @@ export default function Home() {
 	const [ isClient, setIsClient ] = useState(false);
 	const [ draggingTask, setDraggingTask ] = useState<TaskType | null>(null);
 	const [ draggingColumn, setDraggingColumn ] = useState<ColumnType | null>(null);
-	const [ columns, setColumns ] = useState<ColumnType[]>([
-		{
-			id: 1,
-			color: "#F0B8B4",
-			title: "To-Do"
-		},
-		{
-			id: 2,
-			color: "#B4E0F0",
-			title: "In Progress"
-		},
-		{
-			id: 3,
-			color: "#B4F0B8",
-			title: "Done"
-		},
-	]);
+	const [ columns, setColumns ] = useState<ColumnType[]>([]);
+	const [ tasks, setTasks ] = useState<TaskType[]>([]);
 
-	const [ tasks, setTasks ] = useState<TaskType[]>([
-		{
-			id: 1,
-			text: "Task 1",
-			column_id: 1,
-			order: 1
-		},
-		{
-			id: 2,
-			text: "Task 2",
-			column_id: 1,
-			order: 2
-		},
-		{
-			id: 3,
-			text: "Task 3",
-			column_id: 1,
-			order: 3
-		},
-		{
-			id: 4,
-			text: "Task 4",
-			column_id: 1,
-			order: 4
-		},
-		{
-			id: 5,
-			text: "Task 5",
-			column_id: 2,
-			order: 2
-		},
-		{
-			id: 6,
-			text: "Task 6",
-			column_id: 3,
-			order: 2
-		}
-	]);
+	useEffect(() => {
+		const fetchData = async () => {
+		  const res = await fetch('/api/columns');
+		  const results = await res.json();
+		  setColumns(results);
+
+		  const tasksRes = await fetch('/api/tasks');
+		  const tasksResults = await tasksRes.json();
+		  setTasks(tasksResults);
+		};
+	
+		fetchData();
+	  }, []);
 
 	const handleDragStart = (event: any) => {
 		const isActiveTask = event.active.data.current?.type === 'task';

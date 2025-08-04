@@ -6,7 +6,8 @@ export type Column = {
 
 export type Task = {
 	id: number;
-	text: string;
 	column_id: number;
-	order: number;
+	text: string;
+	task_order: number;
+	created: string;
 };
